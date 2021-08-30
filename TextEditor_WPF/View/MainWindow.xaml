@@ -1,0 +1,161 @@
+﻿<Window x:Class="TextEditor_WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TextEditor_WPF" xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
+        Title="Text Editor" Height="600" Width="850">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction Command="{Binding ExitCommand}" CommandParameter="{Binding ElementName=cboxAutoSave}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Window.InputBindings>
+        <KeyBinding 
+            Command="{Binding SaveCommand}" 
+            Modifiers="Control" 
+            Key="S"/>
+        <KeyBinding 
+            Command="{Binding NewWindowCommand}" 
+            Modifiers="Control+Shift" 
+            Key="N"/>
+        <KeyBinding 
+            Command="{Binding SaveAsCommand}" 
+            Modifiers="Control+Shift"
+            Key="S"/>
+        <KeyBinding 
+            Command="{Binding OpenCommand}" 
+            Modifiers="Control"
+            Key="O"/>
+        <KeyBinding 
+            Command="{Binding UndoCommand}" 
+            Modifiers="Control"
+            Key="Z"/>
+        <KeyBinding 
+            Command="{Binding RedoCommand}" 
+            Modifiers="Control"
+            Key="Y"/>
+    </Window.InputBindings>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="70"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Menu Grid.Row="0">
+            <!-- Menu -->
+            <MenuItem Header="File">
+                <MenuItem
+                    Header="New Window"
+                    InputGestureText="Ctrl+Shift+N"
+                    Command="{Binding NewWindowCommand}"/>
+                <MenuItem
+                    Header="Open"
+                    InputGestureText="Ctrl+O"
+                    Command="{Binding OpenCommand}"/>
+                <MenuItem 
+                    Header="Save" 
+                    InputGestureText="Ctrl+S"
+                    Command="{Binding SaveCommand}"/>
+                <MenuItem 
+                    Header="Save As..."
+                    InputGestureText="Ctrl+S"
+                    Command="{Binding SaveAsCommand}"/>
+                <MenuItem 
+                    Header="Exit"
+                    Command="{Binding ExitCommand}"/>
+            </MenuItem>
+        </Menu>
+
+        <Grid Background="#2874A6" Grid.Row="1">
+            <ToolBar 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center"
+                ToolBarTray.IsLocked="True" 
+                Background="#2874A6" 
+                Margin="10,5">
+                <TextBox
+                    x:Name="txtboxPath" 
+                    IsReadOnly="True" 
+                    Width="220" 
+                    Margin="5"
+                    Padding="5" 
+                    FontSize="19"
+                    Text="{Binding FilePath}"/>
+                <Button Command="{Binding SaveCommand}" ToolTip="Save" Style="{StaticResource ButtonStyle}" x:Name="btnSave">
+                    <Image Source="../Assets/save.png" Width="35"/>
+                </Button>
+                <Button Command="{Binding SaveAsCommand}" ToolTip="Save As" Style="{StaticResource ButtonStyle}" x:Name="btnSaveAs">
+                    <Image Source="../Assets/saveas.png" Width="35"/>
+                </Button>
+                <CheckBox Command="{Binding AutoSaveCommand}" CommandParameter="{Binding ElementName=cboxAutoSave}" ToolTip="Autosave : OFF" FontSize="20" Margin="3" Padding="5" x:Name="cboxAutoSave">
+                    <Image Source="../Assets/autosave.png" Width="35"/>
+                </CheckBox>
+                <Button Command="{Binding CutCommand}" CommandParameter="{Binding ElementName=TextBox}" ToolTip="Cut" Style="{StaticResource ButtonStyle}" x:Name="btnCut">
+                    <Image Source="../Assets/cut.png" Width="35"/>
+                </Button>
+                <Button Command="{Binding CopyCommand}" CommandParameter="{Binding ElementName=TextBox}" ToolTip="Copy" Style="{StaticResource ButtonStyle}" x:Name="btnCopy">
+                    <Image Source="../Assets/copy.png" Width="35"/>
+                </Button>
+                <Button Command="{Binding PasteCommand}" CommandParameter="{Binding ElementName=TextBox}" ToolTip="Paste" Style="{StaticResource ButtonStyle}" x:Name="btnPaste">
+                    <Image Source="../Assets/paste.png" Width="35"/>
+                </Button>
+                <Button Command="{Binding SelectAllCommand}" CommandParameter="{Binding ElementName=TextBox}" ToolTip="Select All" Style="{StaticResource ButtonStyle}" x:Name="btnSelectAll">
+                    <Image Source="../Assets/selectall.png" Width="35"/>
+                </Button>
+                <Button Command="{Binding FontCommand}" CommandParameter="{Binding ElementName=TextBox}" ToolTip="Font" Style="{StaticResource ButtonStyle}" x:Name="btnFont">
+                    <Image Source="../Assets/font.png" Width="35"/>
+                </Button>
+                <Button Command="{Binding FontColorCommand}" CommandParameter="{Binding ElementName=TextBox}" ToolTip="Font Color" FontSize="20" Padding="5" Margin="3,6,3,3" x:Name="btnFontColor">
+                    <Image Source="../Assets/fontcolor.png" Width="35"/>
+                </Button>
+            </ToolBar>
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <TextBlock
+                HorizontalAlignment="Center" 
+                Text="{Binding WordsCount}"
+                FontSize="16"
+                FontWeight="DemiBold"
+                Foreground="#2874A6"
+                Margin="5">
+            </TextBlock>
+            <TextBox
+                x:Name="TextBox"
+                SpellCheck.IsEnabled="True"
+                Language="en-US"
+                TabIndex="-3"
+                VerticalScrollBarVisibility="Auto" 
+                Margin="70,30,70,10"
+                FontSize="20"
+                BorderThickness="0"
+                TextWrapping="Wrap"
+                Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="TextChanged">
+                        <i:InvokeCommandAction Command="{Binding WordCountCommand}" CommandParameter="{Binding ElementName=TextBox}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </TextBox>
+
+            <Popup
+                IsOpen="{Binding PopupIsOpen}"
+                x:Name="autoListPopup"    
+                Visibility="Collapsed"                    
+                Height="100"    
+                StaysOpen="False"    
+                Placement="Bottom">
+
+                <ListBox
+                    x:Name="autoList"
+                    Visibility="Collapsed"    
+                    Width="500"    
+                    Height="100"/>
+            </Popup>
+        </Grid>
+    </Grid>
+</Window>
